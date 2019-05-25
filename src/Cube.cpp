@@ -27,9 +27,22 @@ using namespace std;
 //         \+                      \+
 //          A + + + + width + + + + B
 
-// TODO: ANTICLOCKWISE
-
-void drawCube(float x, float y, float z, float width, float length,
+/**
+ * @brief Draws a cube, with the center being at (x, y, z), with the given
+ * width, length, height, and color. The cube is pushed onto the given scene
+ * objects vector.
+ *
+ * @param x x-coordinate of the center of the cube.
+ * @param y y-coordinate of the center of the cube.
+ * @param z z-coordinate of the center of the cube.
+ * @param length The length of the cube (x-direction).
+ * @param width The width of the cube (y-direction).
+ * @param height The height of the cube (z-direction).
+ * @param color The color of the cube to draw.
+ * @param sceneObjects The vector of scene objects the cube should be pushed
+ * onto.
+ */
+void drawCube(float x, float y, float z, float length, float width,
               float height, glm::vec3 color,
               vector<SceneObject *> *sceneObjects) {
   float halfLength = length / 2;
@@ -62,32 +75,4 @@ void drawCube(float x, float y, float z, float width, float length,
   sceneObjects->push_back(top);
   Plane *bottom = new Plane(A, E, F, B, color);
   sceneObjects->push_back(bottom);
-
-  //   glm::vec3 A = glm::vec3(x, y, z);
-  //   glm::vec3 B = glm::vec3(x + length, y, z);
-  //   glm::vec3 C = glm::vec3(x + length, y + height, z);
-  //   glm::vec3 D = glm::vec3(x, y + height, z);
-  //   glm::vec3 E = glm::vec3(x + length, y, z - width);
-  //   glm::vec3 F = glm::vec3(x + length, y + height, z - width);
-  //   glm::vec3 G = glm::vec3(x, y + height, z - width);
-  //   glm::vec3 H = glm::vec3(x, y, z - width);
-
-  //   Plane *plane1 = new Plane(A, B, C, D, color);
-
-  //   Plane *plane2 = new Plane(B, E, F, C, color);
-
-  //   Plane *plane3 = new Plane(E, H, G, F, color);
-
-  //   Plane *plane4 = new Plane(D, G, H, A, color);
-
-  //   Plane *plane5 = new Plane(D, C, F, G, color);
-
-  //   Plane *plane6 = new Plane(H, E, B, A, color);
-
-  //   sceneObjects->push_back(plane1);
-  //   sceneObjects->push_back(plane2);
-  //   sceneObjects->push_back(plane3);
-  //   sceneObjects->push_back(plane4);
-  //   sceneObjects->push_back(plane5);
-  //   sceneObjects->push_back(plane6);
 }

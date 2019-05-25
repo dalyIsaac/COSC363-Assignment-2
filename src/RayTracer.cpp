@@ -3,6 +3,7 @@
 #include "Ray.h"
 #include "SceneObject.h"
 #include "Sphere.h"
+#include "TextureBMP.h"
 #include <GL/glut.h>
 #include <cmath>
 #include <glm/glm.hpp>
@@ -31,6 +32,17 @@ const float XMAX = WIDTH * 0.5;
 const float YMIN = -HEIGHT * 0.5;
 const float YMAX = HEIGHT * 0.5;
 
+const glm::vec3 floorA = glm::vec3(-20.0, -20, -40);
+const glm::vec3 floorB = glm::vec3(20.0, -20, -40);
+const glm::vec3 floorC = glm::vec3(20.0, -20, -200);
+const glm::vec3 floorD = glm::vec3(-20.0, -20, -200);
+
+/**
+ * @brief BMP texture for the floor plane.
+ *
+ */
+TextureBMP floorTexture;
+
 // A global list containing pointers to objects in the scene
 vector<SceneObject *> sceneObjects;
 
@@ -47,18 +59,20 @@ vector<SceneObject *> sceneObjects;
 glm::vec3 trace(Ray ray, int step) {
   glm::vec3 backgroundCol(0);
   glm::vec3 light(10, 40, -3);
-  glm::vec3 ambientCol(0.2); // Ambient color of light
 
-  ray.closestPt(sceneObjects); // Compute the closest point of intersetion of
-                               // objects with the ray
+  // Ambient color of light
+  glm::vec3 ambientCol(0.2);
+
+  // Compute the closest point of intersection of objects with the ray
+  ray.closestPt(sceneObjects);
 
   // If there is no intersection return background colour
   if (ray.xindex == -1) {
     return backgroundCol;
   }
 
-  glm::vec3 materialCol =
-      sceneObjects[ray.xindex]->getColor(); // else return object's colour
+  // else return object's colour
+  glm::vec3 materialCol = sceneObjects[ray.xindex]->getColor();
 
   // normal vector on the sphere at the point of intersection
   glm::vec3 normalVector = sceneObjects[ray.xindex]->normal(ray.xpt);
@@ -87,6 +101,12 @@ glm::vec3 trace(Ray ray, int step) {
 
   glm::vec3 colorSum(0);
 
+  if (ray.xindex == 3) {
+    float texcoords = (ray.xpt.x - floorA.x) / (floorB.x - floorA.x);
+    float texcoordt = (ray.xpt.z - floorA.z) / (floorD.z - floorA.z);
+    materialCol = floorTexture.getColorAt(texcoords, texcoordt);
+  }
+
   if (lDotn <= 0 || (shadow.xindex > -1 && shadow.xdist < lightDist)) {
     colorSum = ambientCol * materialCol;
   } else {
@@ -109,7 +129,6 @@ glm::vec3 trace(Ray ray, int step) {
     // Coefficient of reflection is specified as 0.8
     colorSum = colorSum + (0.8f * reflectedCol);
   }
-
   return colorSum;
 }
 
@@ -196,6 +215,8 @@ void initialize() {
   sceneObjects.push_back(plane);
 
   drawCube(-8, -10, -40, 5, 5, 5, glm::vec3(1, 0.7529, 0.7961), &sceneObjects);
+
+  floorTexture = TextureBMP("textures/earth.bmp");
 }
 
 int main(int argc, char *argv[]) {
