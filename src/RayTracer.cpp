@@ -1,4 +1,5 @@
 #include "Cube.h"
+#include "Cylinder.h"
 #include "Plane.h"
 #include "Ray.h"
 #include "SceneObject.h"
@@ -214,7 +215,11 @@ void initialize() {
                 glm::vec3(0.5, 0.5, 0));
   sceneObjects.push_back(plane);
 
-  drawCube(-8, -10, -40, 5, 5, 5, glm::vec3(1, 0.7529, 0.7961), &sceneObjects);
+  drawCube(-8, -10, -40, 5, 5, 5, glm::vec3(0.15, 0.77, 0.4), &sceneObjects);
+
+  Cylinder *cylinder =
+      new Cylinder(glm::vec3(8, -15, -50), 2, 8.0, glm::vec3(0.27, 0.85, 0.91));
+  sceneObjects.push_back(cylinder);
 
   floorTexture = TextureBMP("textures/earth.bmp");
 }
