@@ -63,7 +63,8 @@ vector<SceneObject *> sceneObjects;
  */
 glm::vec3 trace(Ray ray, int step) {
   glm::vec3 backgroundCol(0);
-  glm::vec3 light(10, 40, -3);
+  glm::vec3 primaryLight(-10, 40, -3);
+  glm::vec3 secondaryLight(40, 40, -100);
 
   // Ambient color of light
   glm::vec3 ambientCol(0.2);
@@ -83,10 +84,13 @@ glm::vec3 trace(Ray ray, int step) {
   glm::vec3 normalVector = sceneObjects[ray.xindex]->normal(ray.xpt);
 
   // vector from the point of intersection towards the light source
-  glm::vec3 lightVector = light - ray.xpt;
-  lightVector = glm::normalize(lightVector);
+  glm::vec3 primaryLightVector = primaryLight - ray.xpt;
+  primaryLightVector = glm::normalize(primaryLightVector);
+  float primaryLDotN = glm::dot(primaryLightVector, normalVector);
 
-  float lDotn = glm::dot(lightVector, normalVector);
+  glm::vec3 secondaryLightVector = secondaryLight - ray.xpt;
+  secondaryLightVector = glm::normalize(secondaryLightVector);
+  float secondaryLDotN = glm::dot(secondaryLightVector, normalVector);
 
   // Specular reflections
 
@@ -94,15 +98,26 @@ glm::vec3 trace(Ray ray, int step) {
 
   // first param: incident light's direction (unit vector from light source to
   // the point of intersection)
-  glm::vec3 reflVector = glm::reflect(-lightVector, normalVector);
+  glm::vec3 primaryReflVector = glm::reflect(-primaryLightVector, normalVector);
+  glm::vec3 secondaryReflVector =
+      glm::reflect(-secondaryLightVector, normalVector);
 
-  float rDotV = glm::dot(reflVector, normalVector);
-  float specularTerm = rDotV < 0.0 ? 0.0 : pow(rDotV, 20.0);
+  float primaryRDotV = glm::dot(primaryReflVector, normalVector);
+  float primarySpecularTerm =
+      primaryRDotV < 0.0 ? 0.0 : pow(primaryRDotV, 20.0);
+
+  float secondaryRDotV = glm::dot(secondaryReflVector, normalVector);
+  float secondarySpecularTerm =
+      secondaryRDotV < 0.0 ? 0.0 : pow(secondaryRDotV, 20.0);
 
   // Shadows
-  Ray shadow(ray.xpt, lightVector);
-  shadow.closestPt(sceneObjects);
-  float lightDist = glm::length(light);
+  Ray primaryShadow(ray.xpt, primaryLightVector);
+  primaryShadow.closestPt(sceneObjects);
+  float primaryLightDist = glm::length(secondaryLight);
+
+  Ray secondaryShadow(ray.xpt, secondaryLightVector);
+  secondaryShadow.closestPt(sceneObjects);
+  float secondaryLightDist = glm::length(secondaryLight);
 
   glm::vec3 colorSum(0);
 
@@ -112,10 +127,20 @@ glm::vec3 trace(Ray ray, int step) {
     materialCol = floorTexture.getColorAt(texcoords, texcoordt);
   }
 
-  if (lDotn <= 0 || (shadow.xindex > -1 && shadow.xdist < lightDist)) {
+  if (primaryLDotN <= 0 ||
+      (primaryShadow.xindex > -1 && primaryShadow.xdist < primaryLightDist)) {
     colorSum = ambientCol * materialCol;
   } else {
-    colorSum = ambientCol * materialCol + lDotn * materialCol + specularTerm;
+    colorSum = ambientCol * materialCol + primaryLDotN * materialCol +
+               primarySpecularTerm;
+  }
+
+  if (secondaryLDotN <= 0 || (secondaryShadow.xindex > -1 &&
+                              secondaryShadow.xdist < secondaryLightDist)) {
+    colorSum += ambientCol * materialCol;
+  } else {
+    colorSum += ambientCol * materialCol + secondaryLDotN * materialCol +
+                secondarySpecularTerm;
   }
 
   if (ray.xindex == 0 && step < MAX_STEPS) {
