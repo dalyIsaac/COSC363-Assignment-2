@@ -1,3 +1,4 @@
+#include "Cone.h"
 #include "Cube.h"
 #include "Cylinder.h"
 #include "Plane.h"
@@ -220,6 +221,10 @@ void initialize() {
   Cylinder *cylinder =
       new Cylinder(glm::vec3(8, -15, -50), 2, 8.0, glm::vec3(0.27, 0.85, 0.91));
   sceneObjects.push_back(cylinder);
+
+  Cone *cone =
+      new Cone(glm::vec3(2, -15, -50), 2, 8.0, glm::vec3(0.341, 0.756, 0.490));
+  sceneObjects.push_back(cone);
 
   floorTexture = TextureBMP("textures/earth.bmp");
 }
