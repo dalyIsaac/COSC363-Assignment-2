@@ -39,6 +39,9 @@ const glm::vec3 floorB = glm::vec3(20.0, -20, -40);
 const glm::vec3 floorC = glm::vec3(20.0, -20, -200);
 const glm::vec3 floorD = glm::vec3(-20.0, -20, -200);
 
+const float pixel = (XMAX - XMIN) / 500;
+const float pixelQuarter = pixel / 4;
+
 /**
  * @brief BMP texture for the floor plane.
  *
@@ -135,6 +138,39 @@ glm::vec3 trace(Ray ray, int step) {
 }
 
 /**
+ * @brief Adds anti-aliasing functionality to the ray tracer.
+ *
+ * @param eye
+ * @param x
+ * @param y
+ * @return glm::vec3
+ */
+glm::vec3 antiAliase(glm::vec3 eye, float x, float y) {
+  glm::vec3 color = glm::vec3(0);
+
+  Ray bottomLeft =
+      Ray(eye, glm::vec3(x - pixelQuarter, y - pixelQuarter, -EDIST));
+  bottomLeft.normalize();
+  color += trace(bottomLeft, 1);
+
+  Ray bottomRight =
+      Ray(eye, glm::vec3(x + pixelQuarter, y - pixelQuarter, -EDIST));
+  bottomRight.normalize();
+  color += trace(bottomRight, 1);
+
+  Ray topLeft = Ray(eye, glm::vec3(x - pixelQuarter, y + pixelQuarter, -EDIST));
+  topLeft.normalize();
+  color += trace(topLeft, 1);
+
+  Ray topRight =
+      Ray(eye, glm::vec3(x + pixelQuarter, y + pixelQuarter, -EDIST));
+  topRight.normalize();
+  color += trace(topRight, 1);
+
+  return color * glm::vec3(0.25);
+}
+
+/**
  * @brief The main display module. In a ray tracing application, it just
  * displays the ray traced image by drawing each cell as a quad.
  *
@@ -172,7 +208,8 @@ void display() {
       ray.normalize();
 
       // Trace the primary ray and get the colour value
-      glm::vec3 col = trace(ray, 1);
+      glm::vec3 col = antiAliase(eye, xp, yp);
+      // glm::vec3 col = trace(ray, 1);
 
       glColor3f(col.r, col.g, col.b);
       // Draw each cell with its color value
