@@ -5,6 +5,7 @@
 #include "Ray.h"
 #include "SceneObject.h"
 #include "Sphere.h"
+#include "Tetrahedron.h"
 #include "TextureBMP.h"
 #include <GL/glut.h>
 #include <cmath>
@@ -131,16 +132,14 @@ glm::vec3 trace(Ray ray, int step) {
     materialCol = floorTexture.getColorAt(texcoords, texcoordt);
   }
 
-  if (primaryLDotN <= 0 ||
-      (primaryShadow.xindex > -1 && primaryShadow.xdist < primaryLightDist)) {
+  if (primaryLDotN <= 0) {
     colorSum = ambientCol * materialCol;
   } else {
     colorSum = ambientCol * materialCol + primaryLDotN * materialCol +
                primarySpecularTerm;
   }
 
-  if (secondaryLDotN <= 0 || (secondaryShadow.xindex > -1 &&
-                              secondaryShadow.xdist < secondaryLightDist)) {
+  if (secondaryLDotN <= 0) {
     colorSum += ambientCol * materialCol;
   } else {
     colorSum += ambientCol * materialCol + secondaryLDotN * materialCol +
@@ -319,6 +318,9 @@ void initialize() {
 
   // adds 6
   drawCube(-8, -10, -90, 5, 5, 5, glm::vec3(0.15, 0.77, 0.4), &sceneObjects);
+
+  // adds 3
+  drawTetrahedron(8, -15, -65, glm::vec3(0.996, 0.184, 0.184), &sceneObjects);
 
   floorTexture = TextureBMP("textures/earth.bmp");
 }
