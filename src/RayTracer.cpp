@@ -42,6 +42,9 @@ const glm::vec3 floorD = glm::vec3(-20.0, -20, -200);
 const float pixel = (XMAX - XMIN) / 500;
 const float pixelQuarter = pixel / 4;
 
+const float TRANSPARENCY = 0.2;
+const float ETA = 1.0 / 1.5;
+
 /**
  * @brief BMP texture for the floor plane.
  *
@@ -159,6 +162,26 @@ glm::vec3 trace(Ray ray, int step) {
     // Coefficient of reflection is specified as 0.8
     colorSum = colorSum + (0.8f * reflectedCol);
   }
+
+  if (ray.xindex == 2 && step < MAX_STEPS) {
+    glm::vec3 g = glm::refract(ray.dir, normalVector, ETA);
+    Ray refractRay(ray.xpt, g);
+    refractRay.closestPt(sceneObjects);
+    if (refractRay.xindex == -1) {
+      return backgroundCol;
+    }
+    glm::vec3 m = sceneObjects[refractRay.xindex]->normal(refractRay.xpt);
+    glm::vec3 h = glm::refract(g, -m, 1.0f / ETA);
+
+    Ray refractOutRay(refractRay.xpt, h);
+    refractOutRay.closestPt(sceneObjects);
+    if (refractOutRay.xindex == -1) {
+      return backgroundCol;
+    }
+    glm::vec3 refractColor = trace(refractOutRay, step + 1);
+    colorSum = colorSum * TRANSPARENCY + refractColor * (1 - TRANSPARENCY);
+  }
+
   return colorSum;
 }
 
@@ -269,7 +292,7 @@ void initialize() {
   sceneObjects.push_back(sphere2);
 
   Sphere *sphere3 =
-      new Sphere(glm::vec3(7.0, -17.0, -138.0), 2.0, glm::vec3(0, 1, 0));
+      new Sphere(glm::vec3(-10.0, -8.0, -60.0), 5.0, glm::vec3(0, 1, 0));
   sceneObjects.push_back(sphere3);
 
   Plane *plane =
