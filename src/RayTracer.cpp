@@ -42,7 +42,7 @@ const glm::vec3 floorD = glm::vec3(-20.0, -20, -200);
 const float pixel = (XMAX - XMIN) / 500;
 const float pixelQuarter = pixel / 4;
 
-const float TRANSPARENCY = 0.2;
+const float TRANSPARENCY = 0.6;
 const float ETA = 1.0 / 1.5;
 
 /**
@@ -124,6 +124,7 @@ glm::vec3 trace(Ray ray, int step) {
 
   glm::vec3 colorSum(0);
 
+  // Floor texture
   if (ray.xindex == 3) {
     float texcoords = (ray.xpt.x - floorA.x) / (floorB.x - floorA.x);
     float texcoordt = (ray.xpt.z - floorA.z) / (floorD.z - floorA.z);
@@ -146,6 +147,7 @@ glm::vec3 trace(Ray ray, int step) {
                 secondarySpecularTerm;
   }
 
+  // Reflection
   if (ray.xindex == 0 && step < MAX_STEPS) {
     // the following does not need to be normalized as it will have a unit
     // length, since both the incident rays direction and the normal vector
@@ -163,6 +165,7 @@ glm::vec3 trace(Ray ray, int step) {
     colorSum = colorSum + (0.8f * reflectedCol);
   }
 
+  // Refraction
   if (ray.xindex == 2 && step < MAX_STEPS) {
     glm::vec3 g = glm::refract(ray.dir, normalVector, ETA);
     Ray refractRay(ray.xpt, g);
@@ -180,6 +183,14 @@ glm::vec3 trace(Ray ray, int step) {
     }
     glm::vec3 refractColor = trace(refractOutRay, step + 1);
     colorSum = colorSum * TRANSPARENCY + refractColor * (1 - TRANSPARENCY);
+    return colorSum;
+  }
+
+  // Transparency
+  if (ray.xindex == 5 && step < MAX_STEPS) {
+    Ray transparentRay(ray.xpt, ray.dir);
+    glm::vec3 transparentColor = trace(transparentRay, step + 1);
+    colorSum = colorSum * TRANSPARENCY + transparentColor * (1 - TRANSPARENCY);
   }
 
   return colorSum;
@@ -285,31 +296,29 @@ void initialize() {
 
   Sphere *sphere1 =
       new Sphere(glm::vec3(-5.0, -5.0, -150.0), 15.0, glm::vec3(0, 0, 1));
-  sceneObjects.push_back(sphere1);
-
   Sphere *sphere2 =
       new Sphere(glm::vec3(10.0, 5.0, -130.0), 4.0, glm::vec3(1, 1, 0));
-  sceneObjects.push_back(sphere2);
-
   Sphere *sphere3 =
       new Sphere(glm::vec3(-10.0, -8.0, -60.0), 5.0, glm::vec3(0, 1, 0));
-  sceneObjects.push_back(sphere3);
-
   Plane *plane =
       new Plane(glm::vec3(-20.0, -20, -40), glm::vec3(20.0, -20, -40),
                 glm::vec3(20.0, -20, -200), glm::vec3(-20.0, -20, -200),
                 glm::vec3(0.5, 0.5, 0));
-  sceneObjects.push_back(plane);
-
-  drawCube(-8, -10, -90, 5, 5, 5, glm::vec3(0.15, 0.77, 0.4), &sceneObjects);
-
   Cylinder *cylinder = new Cylinder(glm::vec3(8, -15, -100), 2, 8.0,
                                     glm::vec3(0.27, 0.85, 0.91));
-  sceneObjects.push_back(cylinder);
-
   Cone *cone =
       new Cone(glm::vec3(2, -15, -100), 2, 8.0, glm::vec3(0.341, 0.756, 0.490));
+
+  // index 0
+  sceneObjects.push_back(sphere1);
+  sceneObjects.push_back(sphere2);
+  sceneObjects.push_back(sphere3);
+  sceneObjects.push_back(plane);
+  sceneObjects.push_back(cylinder);
   sceneObjects.push_back(cone);
+
+  // adds 6
+  drawCube(-8, -10, -90, 5, 5, 5, glm::vec3(0.15, 0.77, 0.4), &sceneObjects);
 
   floorTexture = TextureBMP("textures/earth.bmp");
 }
