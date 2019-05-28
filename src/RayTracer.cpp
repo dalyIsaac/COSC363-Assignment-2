@@ -163,6 +163,15 @@ glm::vec3 trace(Ray ray, int step) {
     }
   }
 
+  if (ray.xindex == 17) {
+    int value = (int)(ray.xpt.x + ray.xpt.z) % 2;
+    if (value == 0) {
+      colorSum = glm::vec3(0.901, 0.941, 0.156);
+    } else {
+      colorSum = glm::vec3(0.156, 0.941, 0.403);
+    }
+  }
+
   // Reflection
   if (ray.xindex == 0 && step < MAX_STEPS) {
     // the following does not need to be normalized as it will have a unit
@@ -310,38 +319,52 @@ void initialize() {
   gluOrtho2D(XMIN, XMAX, YMIN, YMAX);
   glClearColor(0, 0, 0, 1);
 
+  // index 0
   Sphere *sphere1 =
       new Sphere(glm::vec3(-5.0, -5.0, -150.0), 15.0, glm::vec3(0, 0, 1));
+  sceneObjects.push_back(sphere1);
+
+  // index 1
   Sphere *sphere2 =
       new Sphere(glm::vec3(10.0, 5.0, -130.0), 4.0, glm::vec3(1, 1, 0));
+  sceneObjects.push_back(sphere2);
+
+  // index 2
   Sphere *sphere3 =
       new Sphere(glm::vec3(-10.0, -8.0, -60.0), 5.0, glm::vec3(0, 1, 0));
+  sceneObjects.push_back(sphere3);
+
+  // index 3
   Plane *plane =
       new Plane(glm::vec3(-20.0, -20, -40), glm::vec3(20.0, -20, -40),
                 glm::vec3(20.0, -20, -200), glm::vec3(-20.0, -20, -200),
                 glm::vec3(1.0, 1.0, 1.0));
+  sceneObjects.push_back(plane);
+
+  // index 4
   Cylinder *cylinder = new Cylinder(glm::vec3(8, -15, -100), 2, 8.0,
                                     glm::vec3(0.27, 0.85, 0.91));
+  sceneObjects.push_back(cylinder);
+
+  // index 5
   Cone *cone =
       new Cone(glm::vec3(2, -15, -100), 2, 8.0, glm::vec3(0.341, 0.756, 0.490));
-
-  // index 0
-  sceneObjects.push_back(sphere1);
-  sceneObjects.push_back(sphere2);
-  sceneObjects.push_back(sphere3);
-  sceneObjects.push_back(plane);
-  sceneObjects.push_back(cylinder);
   sceneObjects.push_back(cone);
 
-  // adds 6
+  // index 6 - 11 (inclusive)
   drawCube(-8, -10, -90, 5, 5, 5, glm::vec3(0.15, 0.77, 0.4), &sceneObjects);
 
-  // adds 4
-  drawTetrahedron(8, -15, -65, glm::vec3(0.996, 0.184, 0.184), &sceneObjects);
+  // index 12 - 15 (inclusive)
+  drawTetrahedron(3, -15, -65, glm::vec3(0.996, 0.184, 0.184), &sceneObjects);
 
   // index 16
   Sphere *sphere4 = new Sphere(earthCenter, 2.0, glm::vec3(0, 1, 0));
   sceneObjects.push_back(sphere4);
+
+  // index 17
+  Sphere *sphere5 = new Sphere(glm::vec3(8.0, -8.0, -60.0), 2.0,
+                               glm::vec3(0.901, 0.941, 0.156));
+  sceneObjects.push_back(sphere5);
 
   earthTexture = TextureBMP("textures/earth.bmp");
 }
