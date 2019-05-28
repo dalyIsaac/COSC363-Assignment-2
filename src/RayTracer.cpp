@@ -127,13 +127,7 @@ glm::vec3 trace(Ray ray, int step) {
 
   glm::vec3 colorSum(0);
 
-  // Floor texture
-  if (ray.xindex == 3) {
-    float texcoords = (ray.xpt.x - floorA.x) / (floorB.x - floorA.x);
-    float texcoordt = (ray.xpt.z - floorA.z) / (floorD.z - floorA.z);
-    materialCol = floorTexture.getColorAt(texcoords, texcoordt);
-  }
-
+  // Earth sphere texture
   if (ray.xindex == 16) {
     glm::vec3 d = glm::normalize(ray.xpt - earthCenter);
     // differs from wikipedia formula, so that the northern hemisphere is on the
@@ -144,10 +138,10 @@ glm::vec3 trace(Ray ray, int step) {
   }
 
   if (primaryLDotN <= 0) {
-    colorSum = ambientCol * materialCol;
+    colorSum += ambientCol * materialCol;
   } else {
-    colorSum = ambientCol * materialCol + primaryLDotN * materialCol +
-               primarySpecularTerm;
+    colorSum += ambientCol * materialCol + primaryLDotN * materialCol +
+                primarySpecularTerm;
   }
 
   if (secondaryLDotN <= 0) {
@@ -155,6 +149,18 @@ glm::vec3 trace(Ray ray, int step) {
   } else {
     colorSum += ambientCol * materialCol + secondaryLDotN * materialCol +
                 secondarySpecularTerm;
+  }
+
+  // Floor texture
+  if (ray.xindex == 3) {
+    int floorX = (int)((ray.xpt.x + 20) / 5) % 2;
+    int floorZ = (int)(ray.xpt.z / 5) % 2;
+
+    if ((floorX + floorZ) % 2 == 0) {
+      colorSum = glm::vec3(0.0, 0.0, 0.0);
+    } else {
+      colorSum = glm::vec3(1.0, 1.0, 1.0);
+    }
   }
 
   // Reflection
@@ -313,7 +319,7 @@ void initialize() {
   Plane *plane =
       new Plane(glm::vec3(-20.0, -20, -40), glm::vec3(20.0, -20, -40),
                 glm::vec3(20.0, -20, -200), glm::vec3(-20.0, -20, -200),
-                glm::vec3(0.5, 0.5, 0));
+                glm::vec3(1.0, 1.0, 1.0));
   Cylinder *cylinder = new Cylinder(glm::vec3(8, -15, -100), 2, 8.0,
                                     glm::vec3(0.27, 0.85, 0.91));
   Cone *cone =
@@ -330,7 +336,7 @@ void initialize() {
   // adds 6
   drawCube(-8, -10, -90, 5, 5, 5, glm::vec3(0.15, 0.77, 0.4), &sceneObjects);
 
-  // adds 3
+  // adds 4
   drawTetrahedron(8, -15, -65, glm::vec3(0.996, 0.184, 0.184), &sceneObjects);
 
   // index 16
