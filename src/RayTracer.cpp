@@ -52,7 +52,7 @@ const glm::vec3 earthCenter = glm::vec3(5.0, 5.0, -30.0);
  * @brief BMP texture for the floor plane.
  *
  */
-TextureBMP floorTexture;
+TextureBMP earthTexture;
 
 // A global list containing pointers to objects in the scene
 vector<SceneObject *> sceneObjects;
@@ -134,7 +134,7 @@ glm::vec3 trace(Ray ray, int step) {
     // top
     float u = 0.5 - atan2(d.z, d.x) / (2 * M_PI);
     float v = 0.5 + asinf(d.y) / M_PI;
-    materialCol = floorTexture.getColorAt(u, v);
+    materialCol = earthTexture.getColorAt(u, v);
   }
 
   if (primaryLDotN <= 0) {
@@ -343,7 +343,7 @@ void initialize() {
   Sphere *sphere4 = new Sphere(earthCenter, 2.0, glm::vec3(0, 1, 0));
   sceneObjects.push_back(sphere4);
 
-  floorTexture = TextureBMP("textures/earth.bmp");
+  earthTexture = TextureBMP("textures/earth.bmp");
 }
 
 int main(int argc, char *argv[]) {
