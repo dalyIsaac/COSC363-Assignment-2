@@ -46,6 +46,8 @@ const float pixelQuarter = pixel / 4;
 const float TRANSPARENCY = 0.6;
 const float ETA = 1.0 / 1.5;
 
+const glm::vec3 earthCenter = glm::vec3(5.0, 5.0, -30.0);
+
 /**
  * @brief BMP texture for the floor plane.
  *
@@ -130,6 +132,15 @@ glm::vec3 trace(Ray ray, int step) {
     float texcoords = (ray.xpt.x - floorA.x) / (floorB.x - floorA.x);
     float texcoordt = (ray.xpt.z - floorA.z) / (floorD.z - floorA.z);
     materialCol = floorTexture.getColorAt(texcoords, texcoordt);
+  }
+
+  if (ray.xindex == 16) {
+    glm::vec3 d = glm::normalize(ray.xpt - earthCenter);
+    // differs from wikipedia formula, so that the northern hemisphere is on the
+    // top
+    float u = 0.5 - atan2(d.z, d.x) / (2 * M_PI);
+    float v = 0.5 + asinf(d.y) / M_PI;
+    materialCol = floorTexture.getColorAt(u, v);
   }
 
   if (primaryLDotN <= 0) {
@@ -321,6 +332,10 @@ void initialize() {
 
   // adds 3
   drawTetrahedron(8, -15, -65, glm::vec3(0.996, 0.184, 0.184), &sceneObjects);
+
+  // index 16
+  Sphere *sphere4 = new Sphere(earthCenter, 2.0, glm::vec3(0, 1, 0));
+  sceneObjects.push_back(sphere4);
 
   floorTexture = TextureBMP("textures/earth.bmp");
 }
