@@ -161,6 +161,13 @@ glm::vec3 trace(Ray ray, int step) {
   if (primaryLDotN <= 0 ||
       (primaryShadow.xindex > -1 && primaryShadow.xdist < primaryLightDist)) {
     colorSum += ambientCol * materialCol;
+
+    // make the shadow of the transparent object lighter
+    if (primaryShadow.xindex == 5) {
+      colorSum +=
+          (primaryLDotN * materialCol + primarySpecularTerm) * glm::vec3(0.5) +
+          sceneObjects[2]->getColor() * glm::vec3(0.025);
+    }
   } else {
     colorSum += ambientCol * materialCol + primaryLDotN * materialCol +
                 primarySpecularTerm;
@@ -169,6 +176,12 @@ glm::vec3 trace(Ray ray, int step) {
   if (secondaryLDotN <= 0 || (secondaryShadow.xindex > -1 &&
                               secondaryShadow.xdist < secondaryLightDist)) {
     colorSum += ambientCol * materialCol;
+    // make the shadow of the transparent object lighter
+    if (secondaryShadow.xindex == 5) {
+      colorSum += (secondaryLDotN * materialCol + secondarySpecularTerm) *
+                      glm::vec3(0.5) +
+                  sceneObjects[2]->getColor() * glm::vec3(0.025);
+    }
   } else {
     colorSum += ambientCol * materialCol + secondaryLDotN * materialCol +
                 secondarySpecularTerm;
@@ -350,7 +363,7 @@ void initialize() {
 
   // index 5
   Cone *cone =
-      new Cone(glm::vec3(3, -15, -90), 2, 8.0, glm::vec3(0.341, 0.756, 0.490));
+      new Cone(glm::vec3(5, -15, -70), 2, 8.0, glm::vec3(0.341, 0.756, 0.490));
   sceneObjects.push_back(cone);
 
   // index 6 - 11 (inclusive)
