@@ -137,39 +137,41 @@ glm::vec3 trace(Ray ray, int step) {
     materialCol = earthTexture.getColorAt(u, v);
   }
 
-  if (primaryLDotN <= 0) {
-    colorSum += ambientCol * materialCol;
-  } else {
-    colorSum += ambientCol * materialCol + primaryLDotN * materialCol +
-                primarySpecularTerm;
-  }
-
-  if (secondaryLDotN <= 0) {
-    colorSum += ambientCol * materialCol;
-  } else {
-    colorSum += ambientCol * materialCol + secondaryLDotN * materialCol +
-                secondarySpecularTerm;
-  }
-
   // Floor texture
   if (ray.xindex == 3) {
     int floorX = (int)((ray.xpt.x + 20) / 5) % 2;
     int floorZ = (int)(ray.xpt.z / 5) % 2;
 
     if ((floorX + floorZ) % 2 == 0) {
-      colorSum = glm::vec3(0.0, 0.0, 0.0);
+      materialCol = glm::vec3(0.050, 0.184, 0.611);
     } else {
-      colorSum = glm::vec3(1.0, 1.0, 1.0);
+      materialCol = glm::vec3(0.827, 0.011, 0.011);
     }
   }
 
   if (ray.xindex == 17) {
     int value = (int)(ray.xpt.x + ray.xpt.z) % 2;
     if (value == 0) {
-      colorSum = glm::vec3(0.901, 0.941, 0.156);
+      materialCol = glm::vec3(0.901, 0.941, 0.156);
     } else {
-      colorSum = glm::vec3(0.156, 0.941, 0.403);
+      materialCol = glm::vec3(0.156, 0.941, 0.403);
     }
+  }
+
+  if (primaryLDotN <= 0 ||
+      (primaryShadow.xindex > -1 && primaryShadow.xdist < primaryLightDist)) {
+    colorSum += ambientCol * materialCol;
+  } else {
+    colorSum += ambientCol * materialCol + primaryLDotN * materialCol +
+                primarySpecularTerm;
+  }
+
+  if (secondaryLDotN <= 0 || (secondaryShadow.xindex > -1 &&
+                              secondaryShadow.xdist < secondaryLightDist)) {
+    colorSum += ambientCol * materialCol;
+  } else {
+    colorSum += ambientCol * materialCol + secondaryLDotN * materialCol +
+                secondarySpecularTerm;
   }
 
   // Reflection
