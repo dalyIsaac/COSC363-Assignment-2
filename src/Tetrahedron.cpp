@@ -44,13 +44,13 @@ void drawTetrahedron(float x, float y, float z, glm::vec3 color,
   glm::vec3 C = glm::vec3(x, y, z + 6);
   glm::vec3 D = glm::vec3(x, y + 6, z + 3);
 
-  Triangle *front = new Triangle(A, B, D, color);
+  Triangle *front = new Triangle(B, A, D, color);
   sceneObjects->push_back(front);
 
-  Triangle *left = new Triangle(C, A, D, color);
+  Triangle *left = new Triangle(A, C, D, color);
   sceneObjects->push_back(left);
 
-  Triangle *right = new Triangle(B, C, D, color);
+  Triangle *right = new Triangle(C, B, D, color);
   sceneObjects->push_back(right);
 
   Triangle *bottom = new Triangle(A, B, C, color);

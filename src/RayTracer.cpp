@@ -350,14 +350,14 @@ void initialize() {
 
   // index 5
   Cone *cone =
-      new Cone(glm::vec3(2, -15, -100), 2, 8.0, glm::vec3(0.341, 0.756, 0.490));
+      new Cone(glm::vec3(3, -15, -90), 2, 8.0, glm::vec3(0.341, 0.756, 0.490));
   sceneObjects.push_back(cone);
 
   // index 6 - 11 (inclusive)
   drawCube(-8, -10, -90, 5, 5, 5, glm::vec3(0.15, 0.77, 0.4), &sceneObjects);
 
   // index 12 - 15 (inclusive)
-  drawTetrahedron(3, -15, -65, glm::vec3(0.996, 0.184, 0.184), &sceneObjects);
+  drawTetrahedron(-3, -15, -90, glm::vec3(0.996, 0.184, 0.184), &sceneObjects);
 
   // index 16
   Sphere *sphere4 = new Sphere(earthCenter, 2.0, glm::vec3(0, 1, 0));
