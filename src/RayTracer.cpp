@@ -137,39 +137,54 @@ glm::vec3 trace(Ray ray, int step) {
     materialCol = earthTexture.getColorAt(u, v);
   }
 
-  if (primaryLDotN <= 0) {
-    colorSum += ambientCol * materialCol;
-  } else {
-    colorSum += ambientCol * materialCol + primaryLDotN * materialCol +
-                primarySpecularTerm;
-  }
-
-  if (secondaryLDotN <= 0) {
-    colorSum += ambientCol * materialCol;
-  } else {
-    colorSum += ambientCol * materialCol + secondaryLDotN * materialCol +
-                secondarySpecularTerm;
-  }
-
   // Floor texture
   if (ray.xindex == 3) {
     int floorX = (int)((ray.xpt.x + 20) / 5) % 2;
     int floorZ = (int)(ray.xpt.z / 5) % 2;
 
     if ((floorX + floorZ) % 2 == 0) {
-      colorSum = glm::vec3(0.0, 0.0, 0.0);
+      materialCol = glm::vec3(0.050, 0.184, 0.611);
     } else {
-      colorSum = glm::vec3(1.0, 1.0, 1.0);
+      materialCol = glm::vec3(0.827, 0.011, 0.011);
     }
   }
 
   if (ray.xindex == 17) {
     int value = (int)(ray.xpt.x + ray.xpt.z) % 2;
     if (value == 0) {
-      colorSum = glm::vec3(0.901, 0.941, 0.156);
+      materialCol = glm::vec3(0.901, 0.941, 0.156);
     } else {
-      colorSum = glm::vec3(0.156, 0.941, 0.403);
+      materialCol = glm::vec3(0.156, 0.941, 0.403);
     }
+  }
+
+  if (primaryLDotN <= 0 ||
+      (primaryShadow.xindex > -1 && primaryShadow.xdist < primaryLightDist)) {
+    colorSum += ambientCol * materialCol;
+
+    // make the shadow of the transparent object lighter
+    if (primaryShadow.xindex == 5) {
+      colorSum +=
+          (primaryLDotN * materialCol + primarySpecularTerm) * glm::vec3(0.5) +
+          sceneObjects[2]->getColor() * glm::vec3(0.025);
+    }
+  } else {
+    colorSum += ambientCol * materialCol + primaryLDotN * materialCol +
+                primarySpecularTerm;
+  }
+
+  if (secondaryLDotN <= 0 || (secondaryShadow.xindex > -1 &&
+                              secondaryShadow.xdist < secondaryLightDist)) {
+    colorSum += ambientCol * materialCol;
+    // make the shadow of the transparent object lighter
+    if (secondaryShadow.xindex == 5) {
+      colorSum += (secondaryLDotN * materialCol + secondarySpecularTerm) *
+                      glm::vec3(0.5) +
+                  sceneObjects[2]->getColor() * glm::vec3(0.025);
+    }
+  } else {
+    colorSum += ambientCol * materialCol + secondaryLDotN * materialCol +
+                secondarySpecularTerm;
   }
 
   // Reflection
@@ -348,14 +363,14 @@ void initialize() {
 
   // index 5
   Cone *cone =
-      new Cone(glm::vec3(2, -15, -100), 2, 8.0, glm::vec3(0.341, 0.756, 0.490));
+      new Cone(glm::vec3(5, -15, -70), 2, 8.0, glm::vec3(0.341, 0.756, 0.490));
   sceneObjects.push_back(cone);
 
   // index 6 - 11 (inclusive)
   drawCube(-8, -10, -90, 5, 5, 5, glm::vec3(0.15, 0.77, 0.4), &sceneObjects);
 
   // index 12 - 15 (inclusive)
-  drawTetrahedron(3, -15, -65, glm::vec3(0.996, 0.184, 0.184), &sceneObjects);
+  drawTetrahedron(-3, -15, -90, glm::vec3(0.996, 0.184, 0.184), &sceneObjects);
 
   // index 16
   Sphere *sphere4 = new Sphere(earthCenter, 2.0, glm::vec3(0, 1, 0));
