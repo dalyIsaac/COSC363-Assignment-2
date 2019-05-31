@@ -16,13 +16,14 @@ using namespace std;
 //        /               \       \
 //       /                 \        \
 //      /                   \         \
-//     /                     \          C
+//     /                     \          B
 //    /                       \,       /
 //   /               ,         \     /
 //  /       ,                   \  /
-// A------------center-----------B
+// A------------center-----------C
 // The z-axis lies through C, such that the point which intersects the line AB
 // has equal length on each side.
+// The point C is closer to the camera (has a smaller z-value).
 // The center of the triangle lies at `center`
 
 /**
