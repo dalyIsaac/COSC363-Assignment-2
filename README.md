@@ -1,8 +1,8 @@
-# COSC363-Assignment-1
+# COSC363-Assignment-2
 
-GitHub: https://github.com/dalyIsaac/COSC363-Assignment-2
+GitHub: https://github.com/dalyIsaac/OpenGL-raytracer
 
-This project was for the first assignment for COSC363 Computer Graphics, at the University of Canterbury, in Semester 1 2019.
+This project was for the second assignment for COSC363 Computer Graphics, at the University of Canterbury, in Semester 1 2019.
 
 The specifications for the assignment can be found in [`./specifications.pdf`](./specifications.pdf).
 
